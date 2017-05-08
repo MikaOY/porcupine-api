@@ -8,7 +8,7 @@
   },
   "main": "app.js",
   "scripts": {
-    "start": "tsc && node ./bin/www"
+    "start": "node ./bin/www"
   },
   "author": "Mika Yeap <mikaomarr@gmail.com>",
   "contributors": [
@@ -19,8 +19,6 @@
     "express": "^4.15.2"
   },
   "devDependencies": {
-    "@types/node": "^7.0.18",
-    "typescript": "^2.3.2",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
