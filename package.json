@@ -16,7 +16,8 @@
   ],
   "license": "UNLICENSED",
   "dependencies": {
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "tedious": "^2.0.0"
   },
   "devDependencies": {
     "body-parser": "~1.17.1",
