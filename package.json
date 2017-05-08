@@ -1,14 +1,14 @@
 {
   "name": "porcupine-api",
   "version": "1.0.0",
-  "description": "Porcupine API",
+  "description": "Porcupine app API",
+  "private": true,
   "repository": {
     "url": "https://github.com/MikaOY/porcupine-api"
   },
   "main": "app.js",
   "scripts": {
-    "start": "npm run build:live",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts"
+    "start": "tsc && node ./bin/www"
   },
   "author": "Mika Yeap <mikaomarr@gmail.com>",
   "contributors": [
@@ -20,8 +20,14 @@
   },
   "devDependencies": {
     "@types/node": "^7.0.18",
-    "nodemon": "^1.11.0",
-    "ts-node": "^3.0.4",
-    "typescript": "^2.3.2"
+    "typescript": "^2.3.2",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "morgan": "~1.8.1",
+    "node-sass-middleware": "0.9.8",
+    "pug": "~2.0.0-beta11",
+    "serve-favicon": "~2.4.2"
   }
 }
