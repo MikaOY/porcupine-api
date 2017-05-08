@@ -1,0 +1,27 @@
+{
+  "name": "porcupine-api",
+  "version": "1.0.0",
+  "description": "Porcupine API",
+  "repository": {
+    "url": "https://github.com/MikaOY/porcupine-api"
+  },
+  "main": "app.ts",
+  "scripts": {
+    "start": "npm run build:live",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts"
+  },
+  "author": "Mika Yeap <mikaomarr@gmail.com>",
+  "contributors": [
+    "Tian Ooi"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.15.2"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.18",
+    "nodemon": "^1.11.0",
+    "ts-node": "^3.0.4",
+    "typescript": "^2.3.2"
+  }
+}
