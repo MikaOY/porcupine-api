@@ -30,19 +30,34 @@ router.get('/', function(req, res, next) {
     res.render('index', { title: 'Welcome' });
 });
 
-// GET todos 
-router.get('/all/todo/:userId', generateGET('todo', 'userId'));
+/* Todo */
+// GET  
+router.get('/todo/:userId', generateQuery('todo', 'userId'));
+
+// POST 
+router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isArchived/:priority', function(req, res, next) {
+    var request = new Request(
+        `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_id) 
+        OUTPUT INSERTED.todo_id 
+        VALUES (${ req.params['userId'] }, ${ req.params['info'] }, ${ req.params['categoryId'] }, ${ req.params['dateCreated'] }, 
+            ${ req.params['isDone'] }, ${ req.params['dateDone'] }, ${ req.params['isArchved'] }, ${ req.params['priority'] })`,
+        function(err, rowCount, rows) {
+            console.log(rowCount + ' row(s) inserted');
+        }
+    );
+    connection.execSql(request);
+});
 
 // GET categories 
-router.get('/all/category/:userId', generateGET('category', 'userId'));
+router.get('/category/:userId', generateQuery('category', 'userId'));
 
 // GET priorities 
-router.get('/all/priority/:userId', generateGET('priority', 'userId'));
+router.get('/priority/:userId', generateQuery('priority', 'userId'));
 
-function generateGET(table, matchId) {
+function generateQuery(table, matchId) {
     return function (req, res, next) {
         console.log('GET received');
-        var request = new Request(generateQuery(table, req.params[matchId]), 
+        var request = new Request(generateGET(table, req.params[matchId]), 
             function(err) {  
                 if (err) {  
                     console.log(err);}  
@@ -68,17 +83,12 @@ function generateGET(table, matchId) {
     }
 }
 
-function generateQuery(table, id) {
+function generateGET(table, id) {
     if (table) {
         return `SELECT * FROM ${ table } WHERE person_id = ${ id }`;
     } else {
         return null;
     }
 };
-
-// POST todo
-router.post('/todo/:userId/:category*?', function(req, res, next) {
-
-});
 
 module.exports = router;
