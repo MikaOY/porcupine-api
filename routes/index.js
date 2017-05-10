@@ -18,41 +18,53 @@ var config = {
 var connection = new Connection(config);
 connection.on('connect', function(err) {  
     if (err) {
-        console.log('BAD');
+        console.log(err);
     } else {
         // If no error, then good to proceed.  
         console.log("Connected"); 
     } 
 });   
 
-/* GET home page. */
+/* ROUTES */
+
+// home page
 router.get('/', function(req, res, next) {
     res.render('index', { title: 'Welcome' });
 });
 
 /* Todo */
-// GET  
+// GET all
 router.get('/todo/:userId', generateQuery('todo', 'userId'));
 
 // POST 
 router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isArchived/:priority', function(req, res, next) {
     var request = new Request(
-        `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_id) 
+        `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_value) 
         OUTPUT INSERTED.todo_id 
         VALUES (${ req.params['userId'] }, ${ req.params['info'] }, ${ req.params['categoryId'] }, ${ req.params['dateCreated'] }, 
-            ${ req.params['isDone'] }, ${ req.params['dateDone'] }, ${ req.params['isArchved'] }, ${ req.params['priority'] })`,
+            ${ req.params['isDone'] }, ${ req.params['dateDone'] }, ${ req.params['isArchved'] }, ${ req.params['priority'] });`,
         function(err, rowCount, rows) {
             console.log(rowCount + ' row(s) inserted');
         }
     );
+
+    request.on('doneInProc', function(rowCount, more) {  
+        console.log(rowCount + ' rows affected');  
+        res.status(200).json({ post: 'success' });
+    });
+
     connection.execSql(request);
 });
 
-// GET categories 
+/* Category */
+// GET  
 router.get('/category/:userId', generateQuery('category', 'userId'));
 
-// GET priorities 
+/* Priority */
+// GET  
 router.get('/priority/:userId', generateQuery('priority', 'userId'));
+
+/* ROUTES */
 
 function generateQuery(table, matchId) {
     return function (req, res, next) {
