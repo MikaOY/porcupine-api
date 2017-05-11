@@ -50,7 +50,7 @@ router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isA
 
     request.on('doneInProc', function(rowCount, more) {  
         console.log(rowCount + ' rows affected');  
-        res.status(200).json({ post: 'success' });
+        res.status(200).json({ "post": "success" });
     });
 
     connection.execSql(request);
