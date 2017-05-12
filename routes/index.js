@@ -25,7 +25,7 @@ connection.on('connect', function(err) {
     } 
 });   
 
-/* ROUTES */
+// ROUTES
 
 // home page
 router.get('/', function(req, res, next) {
@@ -63,8 +63,6 @@ router.get('/category/:userId', generateQuery('category', 'userId'));
 /* Priority */
 // GET  
 router.get('/priority/:userId', generateQuery('priority', 'userId'));
-
-/* ROUTES */
 
 function generateQuery(table, matchId) {
     return function (req, res, next) {
