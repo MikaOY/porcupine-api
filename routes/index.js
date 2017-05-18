@@ -27,11 +27,6 @@ connection.on('connect', function(err) {
 
 // ROUTES
 
-// home page
-router.get('/', function(req, res, next) {
-    res.render('index', { title: 'Welcome' });
-});
-
 /* Todo */
 // GET all
 router.get('/todo/:userId', generateQuery('todo', 'userId'));
@@ -44,13 +39,12 @@ router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isA
         VALUES (${ req.params['userId'] }, ${ req.params['info'] }, ${ req.params['categoryId'] }, ${ req.params['dateCreated'] }, 
             ${ req.params['isDone'] }, ${ req.params['dateDone'] }, ${ req.params['isArchved'] }, ${ req.params['priority'] });`,
         function(err, rowCount, rows) {
-            console.log(rowCount + ' row(s) inserted');
+            
         }
     );
 
     request.on('doneInProc', function(rowCount, more) {  
-        console.log(rowCount + ' rows affected');  
-        res.status(200).json({ "post": "success" });
+        res.send('POST ok');
     });
 
     connection.execSql(request);
@@ -66,13 +60,12 @@ router.get('/priority/:userId', generateQuery('priority', 'userId'));
 
 function generateQuery(table, matchId) {
     return function (req, res, next) {
-        console.log('GET received');
         var request = new Request(generateGET(table, req.params[matchId]), 
             function(err) {  
                 if (err) {  
-                    console.log(err);}  
+                    // TODO: handle err 
                 }
-            );
+            });
 
         // Build array of json objects to return
         var jsonArray = [];
@@ -85,8 +78,7 @@ function generateQuery(table, matchId) {
         });  
 
         request.on('doneInProc', function(rowCount, more) {  
-            console.log(rowCount + ' rows returned');  
-            res.status(200).json(jsonArray);
+            res.json(jsonArray);
         });
 
         connection.execSql(request);
