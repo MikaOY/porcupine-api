@@ -1,4 +1,4 @@
-process.chdir(__dirname);
+process.chdir(path.join(process.cwd(), '..'));
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
