@@ -59,3 +59,7 @@ typings/
 
 # Amazon Elastic Beanstalk
 .elasticbeanstalk/
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
