@@ -1,12 +1,11 @@
 {
   "name": "porcupine-api",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Porcupine app API",
   "private": true,
   "repository": {
     "url": "https://github.com/MikaOY/porcupine-api"
   },
-  "main": "server.js",
   "scripts": {
     "start": "node ./bin/www"
   },
@@ -16,10 +15,7 @@
   ],
   "license": "UNLICENSED",
   "dependencies": {
-    "express": "^4.15.2",
-    "tedious": "^2.0.0"
-  },
-  "devDependencies": {
+    "tedious": "~2.0.0",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
