@@ -28,7 +28,7 @@ connection.on('connect', function(err) {
 
 // home page
 router.get('/', function(req, res) {
-    res.render('index', { title: 'Welcome' });
+    res.render('index', { title: 'Porcupine' });
 });
 
 /* Todo */
