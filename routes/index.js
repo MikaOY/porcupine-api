@@ -27,7 +27,7 @@ connection.on('connect', function(err) {
 // ROUTES
 
 // home page
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
     res.render('index', { title: 'Welcome' });
 });
 
@@ -36,18 +36,18 @@ router.get('/', function(req, res, next) {
 router.get('/todo/:userId', generateQuery('todo', 'userId'));
 
 // POST 
-router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isArchived/:priority', function(req, res, next) {
+router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isArchived/:priority', function(req, res) {
     var request = new Request(
         `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_value) 
         OUTPUT INSERTED.todo_id 
         VALUES (${ req.params['userId'] }, ${ req.params['info'] }, ${ req.params['categoryId'] }, ${ req.params['dateCreated'] }, 
             ${ req.params['isDone'] }, ${ req.params['dateDone'] }, ${ req.params['isArchved'] }, ${ req.params['priority'] });`,
-        function(err, rowCount, rows) {
+        function(err, rowCount) {
             console.log(rowCount + ' row(s) inserted');
         }
     );
 
-    request.on('doneInProc', function(rowCount, more) {  
+    request.on('doneInProc', function(rowCount) {  
         console.log(rowCount + ' rows affected');  
         res.status(200).json({ "post": "success" });
     });
@@ -64,7 +64,7 @@ router.get('/category/:userId', generateQuery('category', 'userId'));
 router.get('/priority/:userId', generateQuery('priority', 'userId'));
 
 function generateQuery(table, matchId) {
-    return function (req, res, next) {
+    return function (req, res) {
         console.log('GET received');
         var request = new Request(generateGET(table, req.params[matchId]), 
             function(err) {  
@@ -83,7 +83,7 @@ function generateQuery(table, matchId) {
             jsonArray.push(rowObject)
         });  
 
-        request.on('doneInProc', function(rowCount, more) {  
+        request.on('doneInProc', function(rowCount) {  
             console.log(rowCount + ' rows returned');  
             res.status(200).json(jsonArray);
         });
