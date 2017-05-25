@@ -1,11 +1,11 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var Connection = require('tedious').Connection;
-var Request = require('tedious').Request;
+let Connection = require('tedious').Connection;
+let Request = require('tedious').Request;
 
 // Create connection to database
-var config = {
+let config = {
             userName: 'MikaY', 
             password: 'ILoveCodingPorcupine2017', 
             server: 'testing-mika.database.windows.net', 
@@ -14,7 +14,7 @@ var config = {
                 encrypt: true,
             }
         }
-var connection = new Connection(config);
+let connection = new Connection(config);
 connection.on('connect', function(err) {  
     if (err) {
         console.log(err);
@@ -31,52 +31,83 @@ router.get('/', function(req, res) {
     res.render('index', { title: 'Porcupine' });
 });
 
-/* Todo */
-// GET all
-router.get('/todo/:userId', generateQuery('todo', 'userId'));
+/* Board */
 
-// POST 
-router.post('/todo/:userId/:info/:categoryId/:dateCreated/:isDone/:dateDone/:isArchived/:priority', function(req, res) {
-    var request = new Request(
-        `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_value) 
-        OUTPUT INSERTED.todo_id 
-        VALUES (${ req.params['userId'] }, ${ req.params['info'] }, ${ req.params['categoryId'] }, ${ req.params['dateCreated'] }, 
-            ${ req.params['isDone'] }, ${ req.params['dateDone'] }, ${ req.params['isArchved'] }, ${ req.params['priority'] });`,
-        function(err, rowCount) {
-            console.log(rowCount + ' row(s) inserted');
-        }
-    );
+// GET all by user
+// params: personId
+router.get('/board', generateGET('board', 'personId'));
 
-    request.on('doneInProc', function(rowCount) {  
-        console.log(rowCount + ' rows affected');  
-        res.status(200).json({ "post": "success" });
-    });
+// POST new board
+// params: personId, title, dateCreated
+router.post('/board', generatePOST('board'));
 
-    connection.execSql(request);
-});
+// DELETE board with id
+// params: boardId
+router.delete('/board', generateDELETE('board', 'boardId'));
 
 /* Category */
+
 // GET  
-router.get('/category/:userId', generateQuery('category', 'userId'));
+router.get('/category', generateGET('category', 'personId'));
+
+// POST new category
+// params: personId, title, color, defaultOrder, priorityValue, dateCreated, boardId
+router.post('/category', generatePOST('category'));
+
+// DELETE category with id
+// params: categoryId
+router.delete('/category', generateDELETE('category', 'categoryId'));
 
 /* Priority */
-// GET  
-router.get('/priority/:userId', generateQuery('priority', 'userId'));
 
-function generateQuery(table, matchId) {
+// GET  
+router.get('/priority', generateGET('priority', 'personId'));
+
+// POST new priority
+// params: personId, importance, name
+router.post('/priority', generatePOST('priority'));
+
+// DELETE priority with id
+// params: priorityId
+router.delete('/priority', generateDELETE('priority', 'priorityId'));
+
+/* Todo */
+
+// GET all by user
+// params: personId
+router.get('/todo', generateGET('todo', 'personId'));
+
+// POST new todo
+// params: personId, info, categoryId, dateCreated, isDone, dateDone, isArchived, priorityVal
+router.post('/todo', generatePOST('todo'));
+
+// DELETE todo with id
+// params: todoId
+router.delete('/todo', generateDELETE('todo', 'todoId'));
+
+
+function generateGET(table, matchParam) {
     return function (req, res) {
         console.log('GET received');
-        var request = new Request(generateGET(table, req.params[matchId]), 
-            function(err) {  
-                if (err) {  
-                    console.log(err);}  
-                }
-            );
+
+        // Generate query based on table
+        let sql; 
+        if (table) {
+            sql = `SELECT * FROM ${ table } WHERE person_id = ${ req.query[matchParam] }`;
+        } else {
+            sql = null;
+        }
+
+        let request = new Request(sql, function(err) {  
+            if (err) {  
+                console.log(err);}  
+            }
+        );
 
         // Build array of json objects to return
-        var jsonArray = [];
+        let jsonArray = [];
         request.on('row', function(columns) {  
-            var rowObject = {};
+            let rowObject = {};
             columns.forEach(function(column) {  
                 rowObject[column.metadata.colName] = column.value;
             });  
@@ -89,15 +120,90 @@ function generateQuery(table, matchId) {
         });
 
         connection.execSql(request);
-    }
+    };
+};
+
+function generatePOST(table) {
+    return function(req, res) {
+        console.log('POST received');   
+
+        // Set query based on table
+        let sql;
+        switch (table) {
+            case 'board':
+                sql = `INSERT INTO board (person_id, title, date_created) 
+                        VALUES (${ req.body.personId }, ${ req.body.title }, ${ req.body.dateCreated });`;
+                break;
+            case 'category':
+                sql = `INSERT INTO category (person_id, title, color, default_order, priority_value, date_created, board_id) 
+                        VALUES (${ req.body.personId }, ${ req.body.title }, ${ req.body.color }, ${ req.body.defaultOrder },
+                        ${ req.body.priorityValue }, ${ req.body.dateCreated }, ${ req.body.boardId });`;
+                break;
+            case 'priority':
+                sql = `INSERT INTO priority (person_id, importance, name) 
+                        VALUES (${ req.body.personId }, ${ req.body.importance }, ${ req.body.name });`;
+                break;
+            case 'todo':
+                sql = `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_value) 
+                        VALUES (${ req.body.personId }, ${ req.body.info }, ${ req.body.categoryId }, ${ req.body.dateCreated }, 
+                        ${ req.body.isDone }, ${ req.body.dateDone }, ${ req.body.isArchived }, ${ req.body.priorityVal });`;
+                break;
+        }
+
+        let request = new Request(sql, function(err, rowCount) {
+                if (err) {
+                    console.log(err);
+                }
+                console.log(rowCount + ' row(s) inserted');
+            }
+        );
+
+        request.on('doneInProc', function(rowCount) {  
+            console.log(rowCount + ' rows affected');  
+            res.send('Holy macaroni. It worked!');
+        });
+
+        connection.execSql(request);
+    };
 }
 
-function generateGET(table, id) {
-    if (table) {
-        return `SELECT * FROM ${ table } WHERE person_id = ${ id }`;
-    } else {
-        return null;
-    }
-};
+function generateDELETE(table, param){
+    return function (req, res) {
+        console.log('DELETE received'); 
+        console.log(param); 
+
+        // Set query based on table
+        let sql = `DELETE FROM ${ table } WHERE ${ table }_id = ${ req.query[param] };`;
+        console.log(sql);
+        
+        /*
+        switch (param) {
+            case 'boardId':
+                sql = `DELETE FROM ${ table } 
+                        WHERE board_id = ${ req.query[param] };`;
+                break;
+            case 'title':
+                sql = `DELETE FROM ${ table } 
+                        WHERE title = ${ req.query[param] };`;
+                break;
+        }
+        */
+
+        let request = new Request(sql, function(err, rowCount) {
+                if (err) {
+                    console.log(err);
+                }
+                console.log(rowCount + ' row(s) inserted');
+            }
+        );
+
+        request.on('doneInProc', function(rowCount) {  
+            console.log(rowCount + ' rows affected');  
+            res.send('Holy macaroni. It worked!');
+        });
+
+        connection.execSql(request);
+    };
+} 
 
 module.exports = router;
