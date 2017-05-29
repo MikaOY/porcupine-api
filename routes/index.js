@@ -58,6 +58,21 @@ router.post('/category', generatePOST('category'));
 // params: categoryId
 router.delete('/category', generateDELETE('category', 'categoryId'));
 
+/* Priority 
+
+// GET  
+router.get('/priority', generateGET('priority', 'personId'));
+
+// POST new priority
+// params: personId, importance, name
+router.post('/priority', generatePOST('priority'));
+
+// DELETE priority with id
+// params: priorityId
+router.delete('/priority', generateDELETE('priority', 'priorityId'));
+
+*/
+
 /* Todo */
 
 // GET all by user
@@ -127,6 +142,12 @@ function generatePOST(table) {
                         VALUES (${ req.body.personId}, ${req.body.title}, ${req.body.color}, ${req.body.defaultOrder},
                         ${ req.body.priorityValue}, ${req.body.dateCreated}, ${req.body.boardId});`;
 				break;
+			/*
+			case 'priority':
+				sql = `INSERT INTO priority (person_id, importance, name) 
+                        VALUES (${ req.body.personId}, ${req.body.importance}, ${req.body.name});`;
+				break;
+			*/
 			case 'todo':
 				sql = `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_value) 
                         VALUES (${ req.body.personId}, ${req.body.info}, ${req.body.categoryId}, ${req.body.dateCreated}, 
