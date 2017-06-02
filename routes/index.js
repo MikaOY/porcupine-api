@@ -80,13 +80,55 @@ router.delete('/priority', generateDELETE('priority', 'priorityId'));
 router.get('/todo', generateGET('todo', 'personId'));
 
 // POST new todo
-// params: personId, info, categoryId, dateCreated, isDone, dateDone, isArchived, priorityVal
+// params: personId, info, categoryId, dateCreated, isDone (0/1), dateDone, isArchived, priorityVal
 router.post('/todo', generatePOST('todo'));
+
+// PUT todo: personId, todoId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
+router.put('/todo', generatePUT('todo'));
 
 // DELETE todo with id
 // params: todoId
 router.delete('/todo', generateDELETE('todo', 'todoId'));
 
+function generatePUT(table) {
+	return function (req, res) {
+		let userId = req.body.personId;
+		let todoId = req.body.todoId;
+
+		let info = req.body.info;
+		let categoryId = req.body.categoryId;
+		let priorityVal = req.body.priorityVal;
+		let isDone = req.body.isDone;
+		let dateDone = req.body.indateDonefo;
+		let isArchived = req.body.isArchived;
+
+		// Generate SQL query, adjusted for different number of defined params
+		let sql = `UPDATE ${table} 
+							SET ${info == undefined ? '' : ('todo_info = ' + info)}${categoryId == undefined ? ', ' : ''}
+								${categoryId == undefined ? '' : ('category_id = ' + categoryId)}${priorityVal == undefined ? ', ' : ''}
+								${priorityVal == undefined ? '' : ('priority_value = ' + priorityVal)}${isDone == undefined ? ', ' : ''}
+								${isDone == undefined ? '' : ('is_done = ' + isDone)}${dateDone == undefined ? ', ' : ''}
+								${dateDone == undefined ? '' : ('date_done = ' + dateDone)}${isArchived == undefined ? ', ' : ''}
+								${isArchived == undefined ? '' : ('is_archived = ' + isArchived)}
+							WHERE person_id = ${userId} AND todo_id = ${todoId}`;
+
+		let request = new Request(sql, function (err, rowCount) {
+			if (err) {
+				console.log(err);
+			}
+			console.log(rowCount + ' row(s) inserted');
+		}
+		);
+
+		request.on('doneInProc', function (rowCount) {
+			console.log(rowCount + ' rows affected');
+			res.send('Holy macaroni. It worked!');
+		});
+
+		connection.execSql(request);
+	}
+
+}
 
 function generateGET(table, matchParam) {
 	return function (req, res) {
