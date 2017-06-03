@@ -2,6 +2,7 @@
 let express = require('express');
 let router = express.Router();
 
+
 var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;
 
@@ -24,25 +25,6 @@ connection.on('connect', function (err) {
 		console.log("Connected");
 	}
 });
-=======
-var config = {
-            userName: 'MikaY', 
-            password: 'ILoveCodingPorcupine2017', 
-            server: 'testing-mika.database.windows.net', 
-            options: {
-                database: 'porcupine-db',
-                encrypt: true,
-            }
-        }
-var connection = new Connection(config);
-connection.on('connect', function(err) {  
-    if (err) {
-        console.log(err);
-    } else {
-        // If no error, then good to proceed.  
-        console.log("Connected"); 
-    } 
-});   
 
 // ROUTES
 
