@@ -1,3 +1,4 @@
+// @ts-nocheck
 let express = require('express');
 let router = express.Router();
 
@@ -34,19 +35,20 @@ router.get('/', function (req, res) {
 /* Board */
 
 // GET all by user
-// params: userId
+// URL params: userId
 router.get('/board', generateGET('board', 'userId'));
 
 // POST new board
-// params: userId, title, dateCreated
+// URL params: userId, title, dateCreated
 router.post('/board', generatePOST('board'));
 
-// PUT board: userId, boardId, title, dateCreated
+// PUT board
+// body: userId, boardId, title, dateCreated
 // MUST send title
 router.put('/board', generatePUT('board'));
 
 // DELETE board with id
-// params: boardId
+// URL params: boardId
 router.delete('/board', generateDELETE('board', 'boardId'));
 
 /* Category */
@@ -55,7 +57,7 @@ router.delete('/board', generateDELETE('board', 'boardId'));
 router.get('/category', generateGET('category', 'userId'));
 
 // POST new category
-// params: userId, title, color, defaultOrder, priorityVal, dateCreated, boardId
+// URL params: userId, title, color, defaultOrder, priorityVal, dateCreated, boardId
 router.post('/category', generatePOST('category'));
 
 // PUT cat: userId, todoId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
@@ -63,7 +65,7 @@ router.post('/category', generatePOST('category'));
 router.put('/category', generatePUT('category'));
 
 // DELETE category with id
-// params: categoryId
+// URL params: categoryId
 router.delete('/category', generateDELETE('category', 'categoryId'));
 
 /* Priority 
@@ -72,11 +74,11 @@ router.delete('/category', generateDELETE('category', 'categoryId'));
 router.get('/priority', generateGET('priority', 'userId'));
 
 // POST new priority
-// params: userId, importance, name
+// URL params: userId, importance, name
 router.post('/priority', generatePOST('priority'));
 
 // DELETE priority with id
-// params: priorityId
+// URL params: priorityId
 router.delete('/priority', generateDELETE('priority', 'priorityId'));
 
 */
@@ -84,11 +86,11 @@ router.delete('/priority', generateDELETE('priority', 'priorityId'));
 /* Todo */
 
 // GET all by user
-// params: userId
+// URL params: userId
 router.get('/todo', generateGET('todo', 'userId'));
 
 // POST new todo
-// params: userId, info, categoryId, dateCreated, isDone (0/1), dateDone, isArchived, priorityVal
+// URL params: userId, info, categoryId, dateCreated, isDone (0/1), dateDone, isArchived, priorityVal
 router.post('/todo', generatePOST('todo'));
 
 // PUT todo: userId, todoId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
@@ -96,7 +98,7 @@ router.post('/todo', generatePOST('todo'));
 router.put('/todo', generatePUT('todo'));
 
 // DELETE todo with id
-// params: todoId
+// URL params: todoId
 router.delete('/todo', generateDELETE('todo', 'todoId'));
 
 function generateGET(table, matchParam) {
@@ -195,7 +197,7 @@ function generatePUT(table) {
 				let boardTitle = req.body.title;
 				let boardDateCreated = req.body.dateCreated;
 
-				// Generate SQL query, adjusted for different number of defined params
+				// Generate SQL query, adjusted for different number of defined URL params
 				sql = `UPDATE ${table} 
 							SET ${boardTitle == undefined ? '' : ('title = ' + boardTitle)}${boardDateCreated !== undefined ? ', ' : ''}
 								${boardDateCreated == undefined ? '' : ('date_created = ' + boardDateCreated)}
@@ -211,7 +213,7 @@ function generatePUT(table) {
 				let defaultOrder = req.body.defaultOrder;
 				let priorityValue = req.body.priorityVal;
 
-				// Generate SQL query, adjusted for different number of defined params
+				// Generate SQL query, adjusted for different number of defined URL params
 				sql = `UPDATE ${table} 
 							SET ${catTitle == undefined ? '' : ('title = ' + catTitle)}${catBoardId !== undefined ? ', ' : ''}
 								${catBoardId == undefined ? '' : ('board_id = ' + catBoardId)}${color !== undefined ? ', ' : ''}
@@ -232,7 +234,7 @@ function generatePUT(table) {
 				let dateDone = req.body.dateDone;
 				let isArchived = req.body.isArchived;
 
-				// Generate SQL query, adjusted for different number of defined params
+				// Generate SQL query, adjusted for different number of defined URL params
 				sql = `UPDATE ${table} 
 							SET ${info == undefined ? '' : ('todo_info = ' + info)}${todoCategoryId !== undefined ? ', ' : ''}
 								${todoCategoryId == undefined ? '' : ('category_id = ' + todoCategoryId)}${priorityVal !== undefined ? ', ' : ''}
