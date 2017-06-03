@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 // @ts-nocheck
 let express = require('express');
 let router = express.Router();
+=======
+var express = require('express');
+var router = express.Router();
+>>>>>>> parent of d39f682... Added other CRUD functions but update
 
-let Connection = require('tedious').Connection;
-let Request = require('tedious').Request;
+var Connection = require('tedious').Connection;
+var Request = require('tedious').Request;
 
 // Create connection to database
+<<<<<<< HEAD
 let config = {
 	userName: 'MikaY',
 	password: 'ILoveCodingPorcupine2017',
@@ -24,6 +30,25 @@ connection.on('connect', function (err) {
 		console.log("Connected");
 	}
 });
+=======
+var config = {
+            userName: 'MikaY', 
+            password: 'ILoveCodingPorcupine2017', 
+            server: 'testing-mika.database.windows.net', 
+            options: {
+                database: 'porcupine-db',
+                encrypt: true,
+            }
+        }
+var connection = new Connection(config);
+connection.on('connect', function(err) {  
+    if (err) {
+        console.log(err);
+    } else {
+        // If no error, then good to proceed.  
+        console.log("Connected"); 
+    } 
+});   
 
 // ROUTES
 
@@ -52,7 +77,6 @@ router.put('/board', generatePUT('board'));
 router.delete('/board', generateDELETE('board', 'boardId'));
 
 /* Category */
-
 // GET  
 router.get('/category', generateGET('category', 'userId'));
 
