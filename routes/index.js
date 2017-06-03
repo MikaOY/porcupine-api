@@ -1,17 +1,11 @@
-<<<<<<< HEAD
 // @ts-nocheck
 let express = require('express');
 let router = express.Router();
-=======
-var express = require('express');
-var router = express.Router();
->>>>>>> parent of d39f682... Added other CRUD functions but update
 
 var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;
 
 // Create connection to database
-<<<<<<< HEAD
 let config = {
 	userName: 'MikaY',
 	password: 'ILoveCodingPorcupine2017',
