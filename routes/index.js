@@ -45,7 +45,7 @@ router.post('/board', generatePOST('board'));
 
 // PUT board
 // body: userId, boardId, title, dateCreated
-// MUST send title
+// MUST send title, userId, boardId
 router.put('/board', generatePUT('board'));
 
 // DELETE board with id
@@ -60,8 +60,8 @@ router.get('/category', generateGET('category', 'userId'));
 // URL params: userId, title, color, defaultOrder, priorityVal, dateCreated, boardId
 router.post('/category', generatePOST('category'));
 
-// PUT cat: userId, todoId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
-// MUST send title
+// PUT cat: userId, categoryId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
+// MUST send title, userId, categoryId
 router.put('/category', generatePUT('category'));
 
 // DELETE category with id
@@ -94,7 +94,7 @@ router.get('/todo', generateGET('todo', 'userId'));
 router.post('/todo', generatePOST('todo'));
 
 // PUT todo: userId, todoId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
-// MUST send info
+// MUST send info, userId, todoId
 router.put('/todo', generatePUT('todo'));
 
 // DELETE todo with id
