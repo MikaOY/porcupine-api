@@ -243,7 +243,7 @@ function generatePUT(table) {
 							SET ${info == undefined ? '' : ('todo_info = ' + info)}${todoCategoryId !== undefined ? ', ' : ''}
 								${todoCategoryId == undefined ? '' : ('category_id = ' + todoCategoryId)}${priorityVal !== undefined ? ', ' : ''}
 								${priorityVal == undefined ? '' : ('priority_value = ' + priorityVal)}${todoDateCreated !== undefined ? ', ' : ''}
-								${todoDateCreated == undefined ? '' : ('priority_value = ' + todoDateCreated)}${isDone !== undefined ? ', ' : ''}
+								${todoDateCreated == undefined ? '' : ('date_created = ' + todoDateCreated)}${isDone !== undefined ? ', ' : ''}
 								${isDone == undefined ? '' : ('is_done = ' + isDone)}${dateDone !== undefined ? ', ' : ''}
 								${dateDone == undefined ? '' : ('date_done = ' + dateDone)}${isArchived !== undefined ? ', ' : ''}
 								${isArchived == undefined ? '' : ('is_archived = ' + isArchived)}${todoDateDue !== undefined ? ', ' : ''}
@@ -251,6 +251,7 @@ function generatePUT(table) {
 							WHERE person_id = ${userId} AND todo_id = ${todoId}`;
 				break;
 		}
+		console.log(sql);
 
 
 		let request = new Request(sql, function (err, rowCount) {
