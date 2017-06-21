@@ -48,6 +48,12 @@ router.post('/board', generatePOST('board'));
 // MUST send board_title, userId, boardId
 router.put('/board', generatePUT('board'));
 
+// PUT (delete) board
+// body MUST: boardId, userId
+router.put('/board/delete', generatePUTDelete('board', '1'));
+// restore
+router.put('/board/restore', generatePUTDelete('board', '0'));
+
 // DELETE board with id
 // URL params: boardId
 router.delete('/board', generateDELETE('board', 'boardId'));
@@ -64,6 +70,12 @@ router.post('/category', generatePOST('category'));
 // body: userId, categoryId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
 // MUST send category_title, userId, categoryId
 router.put('/category', generatePUT('category'));
+
+// PUT (delete) category
+// body MUST: categoryId, userId
+router.put('/category/delete', generatePUTDelete('category', '1'));
+// restore
+router.put('/category/restore', generatePUTDelete('category', '0'));
 
 // DELETE category with id
 // URL params: categoryId
@@ -98,6 +110,12 @@ router.post('/todo', generatePOST('todo'));
 // body: userId, todoId, info, categoryId, isDone (0/1), dateDone, isArchived (0/1), priorityVal, dateDue
 // MUST send info, userId, todoId
 router.put('/todo', generatePUT('todo'));
+
+// PUT (delete) todo
+// body MUST: todoId, userId
+router.put('/todo/delete', generatePUTDelete('todo', '1'));
+// restore
+router.put('/todo/restore', generatePUTDelete('todo', '0'));
 
 // DELETE todo with id
 // URL params: todoId
@@ -166,8 +184,7 @@ function generateGET(table, matchParam) {
 			if (err) {
 				console.log(err);
 			}
-		}
-		);
+		});
 
 		// Build array of json objects to return
 		let jsonArray = [];
@@ -251,8 +268,6 @@ function generatePUT(table) {
 							WHERE person_id_todo = ${userId} AND todo_id = ${todoId}`;
 				break;
 		}
-		console.log(sql);
-
 
 		let request = new Request(sql, function (err, rowCount) {
 			if (err) {
@@ -269,6 +284,36 @@ function generatePUT(table) {
 
 		connection.execSql(request);
 	}
+}
+
+function generatePUTDelete(table, bit) {
+	return function (req, res) {
+		console.log('PUT delete received');
+
+		// Generate query based on table
+		let sql;
+		if (table) {
+			sql = `UPDATE ${table} SET ${table}_is_deleted = ${bit} 
+							WHERE person_id_${table} = ${req.body.userId} AND ${table}_id = ${req.body[table + 'Id']}`;
+		} else {
+			sql = null; // TODO: return error
+		}
+
+		let request = new Request(sql, function (err, rowCount) {
+			if (err) {
+				console.log(err);
+			}
+			console.log(rowCount + ' row(s) inserted');
+		}
+		);
+
+		request.on('doneInProc', function (rowCount) {
+			console.log(rowCount + ' rows affected');
+			res.send('Holy macaroni. It worked!');
+		});
+
+		connection.execSql(request);
+	};
 }
 
 function generateDELETE(table, param) {
