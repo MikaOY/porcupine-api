@@ -171,8 +171,8 @@ function generatePOST(table) {
                         VALUES (${req.body.userId}, ${req.body.title}, ${req.body.dateCreated}, 0);`;
 				break;
 			case 'category':
-				sql = `INSERT INTO category (person_id_category, category_title, color, default_order, category_priority, category_date_created, board_id_category, category_is_deleted) 
-                        VALUES (${req.body.userId}, ${req.body.title}, ${req.body.color}, ${req.body.defaultOrder},
+				sql = `INSERT INTO category (person_id_category, category_title, color, category_priority, category_date_created, board_id_category, category_is_deleted) 
+                        VALUES (${req.body.userId}, ${req.body.title}, ${req.body.color},
                         ${req.body.priorityVal}, ${req.body.dateCreated}, ${req.body.boardId}, 0);`;
 				break;
 			/*
@@ -268,7 +268,6 @@ function generatePUT(table) {
 				let catBoardId = req.body.boardId;
 				let color = req.body.color;
 				let catDateCreated = req.body.dateCreated;
-				let defaultOrder = req.body.defaultOrder;
 				let priorityValue = req.body.priorityVal;
 
 				// Generate SQL query, adjusted for different number of defined URL params
@@ -276,8 +275,7 @@ function generatePUT(table) {
 							SET ${catTitle == undefined ? '' : ('category_title = ' + catTitle)}${catBoardId !== undefined ? ', ' : ''}
 								${catBoardId == undefined ? '' : ('board_id_category = ' + catBoardId)}${color !== undefined ? ', ' : ''}
 								${color == undefined ? '' : ('color = ' + color)}${catDateCreated !== undefined ? ', ' : ''}
-								${catDateCreated == undefined ? '' : ('category_date_created = ' + catDateCreated)}${defaultOrder !== undefined ? ', ' : ''}
-								${defaultOrder == undefined ? '' : ('default_order = ' + defaultOrder)}${priorityValue !== undefined ? ', ' : ''}
+								${catDateCreated == undefined ? '' : ('category_date_created = ' + catDateCreated)}${priorityValue !== undefined ? ', ' : ''}
 								${priorityValue == undefined ? '' : ('category_priority = ' + priorityValue)}
 							WHERE person_id_category = ${userId} AND category_id = ${categoryId}`;
 				break;
