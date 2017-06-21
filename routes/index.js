@@ -121,6 +121,44 @@ router.put('/todo/restore', generatePUTDelete('todo', '0'));
 // URL params: todoId
 router.delete('/todo', generateDELETE('todo', 'todoId'));
 
+/* SHARED */
+
+// GET all by user
+// URL params: userId
+router.get('/shared', (req, res) => {
+	console.log('GET shared received');
+
+	// Generate query based on table
+	let sql = `SELECT * FROM sharing
+							INNER JOIN board ON sharing.board_id_sharing = board.board_id
+							INNER JOIN category ON board.board_id = category.board_id_category
+							INNER JOIN todo ON category.category_id = todo.category_id_todo
+							WHERE sharing.person_id_sharing = ${req.query['userId']};`
+
+	let request = new Request(sql, function (err) {
+		if (err) {
+			console.log(err);
+		}
+	});
+
+	// Build array of json objects to return
+	let jsonArray = [];
+	request.on('row', function (columns) {
+		let rowObject = {};
+		columns.forEach(function (column) {
+			rowObject[column.metadata.colName] = column.value;
+		});
+		jsonArray.push(rowObject)
+	});
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows returned');
+		res.status(200).json(jsonArray);
+	});
+
+	connection.execSql(request);
+});
+
 function generatePOST(table) {
 	return function (req, res) {
 		console.log('POST received');
