@@ -167,13 +167,13 @@ function generatePOST(table) {
 		let sql;
 		switch (table) {
 			case 'board':
-				sql = `INSERT INTO board (person_id_board, board_title, board_date_created) 
-                        VALUES (${req.body.userId}, ${req.body.title}, ${req.body.dateCreated});`;
+				sql = `INSERT INTO board (person_id_board, board_title, board_date_created, board_is_deleted) 
+                        VALUES (${req.body.userId}, ${req.body.title}, ${req.body.dateCreated}, 0);`;
 				break;
 			case 'category':
-				sql = `INSERT INTO category (person_id_category, category_title, color, default_order, category_priority, category_date_created, board_id_category) 
+				sql = `INSERT INTO category (person_id_category, category_title, color, default_order, category_priority, category_date_created, board_id_category, category_is_deleted) 
                         VALUES (${req.body.userId}, ${req.body.title}, ${req.body.color}, ${req.body.defaultOrder},
-                        ${req.body.priorityVal}, ${req.body.dateCreated}, ${req.body.boardId});`;
+                        ${req.body.priorityVal}, ${req.body.dateCreated}, ${req.body.boardId}, 0);`;
 				break;
 			/*
 			case 'priority':
@@ -182,9 +182,9 @@ function generatePOST(table) {
 				break;
 			*/
 			case 'todo':
-				sql = `INSERT INTO todo (person_id_todo, todo_info, category_id_todo, todo_date_created, is_done, date_done, is_archived, todo_priority, date_due) 
+				sql = `INSERT INTO todo (person_id_todo, todo_info, category_id_todo, todo_date_created, is_done, date_done, is_archived, todo_priority, date_due, todo_is_deleted) 
                         VALUES (${req.body.userId}, ${req.body.info}, ${req.body.categoryId}, ${req.body.dateCreated}, 
-                        ${req.body.isDone}, ${req.body.dateDone}, ${req.body.isArchived}, ${req.body.priorityVal}, ${req.body.dateDue});`;
+                        ${req.body.isDone}, ${req.body.dateDone}, ${req.body.isArchived}, ${req.body.priorityVal}, ${req.body.dateDue}, 0);`;
 				break;
 		}
 		console.log(sql);
