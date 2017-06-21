@@ -175,7 +175,7 @@ function generateGET(table, matchParam) {
 		// Generate query based on table
 		let sql;
 		if (table) {
-			sql = `SELECT * FROM ${table} WHERE person_id_${table} = ${req.query[matchParam]}`;
+			sql = `SELECT * FROM ${table} WHERE person_id_${table} = ${req.query[matchParam]} AND ${table}_is_deleted = 0;`;
 		} else {
 			sql = null;
 		}
