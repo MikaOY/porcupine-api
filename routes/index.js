@@ -40,12 +40,12 @@ router.get('/', function (req, res) {
 router.get('/board', generateGET('board', 'userId'));
 
 // POST new board
-// body params: userId, title, dateCreated
+// body params: userId, board_title, dateCreated
 router.post('/board', generatePOST('board'));
 
 // PUT board
-// body: userId, boardId, title, dateCreated
-// MUST send title, userId, boardId
+// body: userId, boardId, board_title, dateCreated
+// MUST send board_title, userId, boardId
 router.put('/board', generatePUT('board'));
 
 // DELETE board with id
@@ -57,12 +57,12 @@ router.delete('/board', generateDELETE('board', 'boardId'));
 router.get('/category', generateGET('category', 'userId'));
 
 // POST new category
-// body params: userId, title, color, defaultOrder, priorityVal, dateCreated, boardId
+// body params: userId, category_title, color, defaultOrder, priorityVal, dateCreated, boardId
 router.post('/category', generatePOST('category'));
 
 // PUT cat
 // body: userId, categoryId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
-// MUST send title, userId, categoryId
+// MUST send category_title, userId, categoryId
 router.put('/category', generatePUT('category'));
 
 // DELETE category with id
@@ -111,22 +111,22 @@ function generatePOST(table) {
 		let sql;
 		switch (table) {
 			case 'board':
-				sql = `INSERT INTO board (person_id, title, date_created) 
-                        VALUES (${ req.body.userId}, ${req.body.title}, ${req.body.dateCreated});`;
+				sql = `INSERT INTO board (person_id_board, board_title, board_date_created) 
+                        VALUES (${req.body.userId}, ${req.body.title}, ${req.body.dateCreated});`;
 				break;
 			case 'category':
-				sql = `INSERT INTO category (person_id, title, color, default_order, priority_value, date_created, board_id) 
-                        VALUES (${ req.body.userId}, ${req.body.title}, ${req.body.color}, ${req.body.defaultOrder},
-                        ${ req.body.priorityVal}, ${req.body.dateCreated}, ${req.body.boardId});`;
+				sql = `INSERT INTO category (person_id_category, category_title, color, default_order, category_priority, category_date_created, board_id_category) 
+                        VALUES (${req.body.userId}, ${req.body.title}, ${req.body.color}, ${req.body.defaultOrder},
+                        ${req.body.priorityVal}, ${req.body.dateCreated}, ${req.body.boardId});`;
 				break;
 			/*
 			case 'priority':
 				sql = `INSERT INTO priority (person_id, importance, name) 
-                        VALUES (${ req.body.userId}, ${req.body.importance}, ${req.body.name});`;
+                        VALUES (${req.body.userId}, ${req.body.importance}, ${req.body.name});`;
 				break;
 			*/
 			case 'todo':
-				sql = `INSERT INTO todo (person_id, todo_info, category_id, date_created, is_done, date_done, is_archived, priority_value, date_due) 
+				sql = `INSERT INTO todo (person_id_todo, todo_info, category_id_todo, todo_date_created, is_done, date_done, is_archived, todo_priority, date_due) 
                         VALUES (${req.body.userId}, ${req.body.info}, ${req.body.categoryId}, ${req.body.dateCreated}, 
                         ${req.body.isDone}, ${req.body.dateDone}, ${req.body.isArchived}, ${req.body.priorityVal}, ${req.body.dateDue});`;
 				break;
@@ -157,7 +157,7 @@ function generateGET(table, matchParam) {
 		// Generate query based on table
 		let sql;
 		if (table) {
-			sql = `SELECT * FROM ${table} WHERE person_id = ${req.query[matchParam]}`;
+			sql = `SELECT * FROM ${table} WHERE person_id_${table} = ${req.query[matchParam]}`;
 		} else {
 			sql = null;
 		}
@@ -202,9 +202,9 @@ function generatePUT(table) {
 
 				// Generate SQL query, adjusted for different number of defined URL params
 				sql = `UPDATE ${table} 
-							SET ${boardTitle == undefined ? '' : ('title = ' + boardTitle)}${boardDateCreated !== undefined ? ', ' : ''}
-								${boardDateCreated == undefined ? '' : ('date_created = ' + boardDateCreated)}
-							WHERE person_id = ${userId} AND board_id = ${boardId}`;
+							SET ${boardTitle == undefined ? '' : ('board_title = ' + boardTitle)}${boardDateCreated !== undefined ? ', ' : ''}
+								${boardDateCreated == undefined ? '' : ('board_date_created = ' + boardDateCreated)}
+							WHERE person_id_board = ${userId} AND board_id = ${boardId}`;
 				break;
 			case 'category':
 				let categoryId = req.body.categoryId;
@@ -218,13 +218,13 @@ function generatePUT(table) {
 
 				// Generate SQL query, adjusted for different number of defined URL params
 				sql = `UPDATE ${table} 
-							SET ${catTitle == undefined ? '' : ('title = ' + catTitle)}${catBoardId !== undefined ? ', ' : ''}
-								${catBoardId == undefined ? '' : ('board_id = ' + catBoardId)}${color !== undefined ? ', ' : ''}
+							SET ${catTitle == undefined ? '' : ('category_title = ' + catTitle)}${catBoardId !== undefined ? ', ' : ''}
+								${catBoardId == undefined ? '' : ('board_id_category = ' + catBoardId)}${color !== undefined ? ', ' : ''}
 								${color == undefined ? '' : ('color = ' + color)}${catDateCreated !== undefined ? ', ' : ''}
-								${catDateCreated == undefined ? '' : ('date_created = ' + catDateCreated)}${defaultOrder !== undefined ? ', ' : ''}
+								${catDateCreated == undefined ? '' : ('category_date_created = ' + catDateCreated)}${defaultOrder !== undefined ? ', ' : ''}
 								${defaultOrder == undefined ? '' : ('default_order = ' + defaultOrder)}${priorityValue !== undefined ? ', ' : ''}
-								${priorityValue == undefined ? '' : ('priority_value = ' + priorityValue)}
-							WHERE person_id = ${userId} AND category_id = ${categoryId}`;
+								${priorityValue == undefined ? '' : ('category_priority = ' + priorityValue)}
+							WHERE person_id_category = ${userId} AND category_id = ${categoryId}`;
 				break;
 			case 'todo':
 				let todoId = req.body.todoId;
@@ -241,14 +241,14 @@ function generatePUT(table) {
 				// Generate SQL query, adjusted for different number of defined URL params
 				sql = `UPDATE ${table} 
 							SET ${info == undefined ? '' : ('todo_info = ' + info)}${todoCategoryId !== undefined ? ', ' : ''}
-								${todoCategoryId == undefined ? '' : ('category_id = ' + todoCategoryId)}${priorityVal !== undefined ? ', ' : ''}
-								${priorityVal == undefined ? '' : ('priority_value = ' + priorityVal)}${todoDateCreated !== undefined ? ', ' : ''}
-								${todoDateCreated == undefined ? '' : ('date_created = ' + todoDateCreated)}${isDone !== undefined ? ', ' : ''}
+								${todoCategoryId == undefined ? '' : ('category_id_todo = ' + todoCategoryId)}${priorityVal !== undefined ? ', ' : ''}
+								${priorityVal == undefined ? '' : ('todo_priority = ' + priorityVal)}${todoDateCreated !== undefined ? ', ' : ''}
+								${todoDateCreated == undefined ? '' : ('todo_date_created = ' + todoDateCreated)}${isDone !== undefined ? ', ' : ''}
 								${isDone == undefined ? '' : ('is_done = ' + isDone)}${dateDone !== undefined ? ', ' : ''}
 								${dateDone == undefined ? '' : ('date_done = ' + dateDone)}${isArchived !== undefined ? ', ' : ''}
 								${isArchived == undefined ? '' : ('is_archived = ' + isArchived)}${todoDateDue !== undefined ? ', ' : ''}
 								${todoDateDue == undefined ? '' : ('date_due = ' + todoDateDue)}
-							WHERE person_id = ${userId} AND todo_id = ${todoId}`;
+							WHERE person_id_todo = ${userId} AND todo_id = ${todoId}`;
 				break;
 		}
 		console.log(sql);
