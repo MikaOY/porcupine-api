@@ -123,14 +123,21 @@ router.delete('/todo', generateDELETE('todo', 'todoId'));
 
 /* USER */
 
-// GET user by email
-// URL params: email
+// GET user by email/ id
+// URL params: email/id
 router.get('/user', (req, res) => {
 	console.log('GET user by email received');
 
-	// Generate query based on table
-	let sql = `SELECT * FROM person
-							WHERE person_email like ${req.query['email']};`
+	// Generate query based on param	
+	let sql;
+	if (req.query['email'] != undefined) {
+		sql = `SELECT * FROM person
+						WHERE person_email like ${req.query['email']};`
+	}
+	if (req.query['id'] != undefined) {
+		sql = `SELECT * FROM person
+						WHERE person_id = ${req.query['id']};`
+	}
 
 	let request = new Request(sql, function (err) {
 		if (err) {
