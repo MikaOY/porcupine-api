@@ -172,7 +172,7 @@ router.post('/shared', (req, res) => {
 
 	let sql = `INSERT INTO sharing 
 							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
-								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId}, ${req.body.recipientEmail})`;
+								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
 
 	let request = new Request(sql, function (err, rowCount) {
 		if (err) {
