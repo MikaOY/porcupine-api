@@ -121,16 +121,51 @@ router.put('/todo/restore', generatePUTDelete('todo', '0'));
 // URL params: todoId
 router.delete('/todo', generateDELETE('todo', 'todoId'));
 
+/* USER */
+
+// GET user by email
+// URL params: email
+router.get('/user', (req, res) => {
+	console.log('GET user by email received');
+
+	// Generate query based on table
+	let sql = `SELECT * FROM person
+							WHERE person_email like ${req.query['email']};`
+
+	let request = new Request(sql, function (err) {
+		if (err) {
+			console.log(err);
+		}
+	});
+
+	// Build array of json objects to return
+	let jsonArray = [];
+	request.on('row', function (columns) {
+		let rowObject = {};
+		columns.forEach(function (column) {
+			rowObject[column.metadata.colName] = column.value;
+		});
+		jsonArray.push(rowObject)
+	});
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows returned');
+		res.status(200).json(jsonArray);
+	});
+
+	connection.execSql(request);
+});
+
 /* SHARING */
 
 // POST new sharing
-// body params: boardId, recipientId, isViewOnly, note, sharerId, ownerId
+// body params: boardId, recipientId, isViewOnly, note, sharerId, ownerId, recipientEmail
 router.post('/shared', (req, res) => {
 	console.log('POST sharing received');
 
 	let sql = `INSERT INTO sharing 
 							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
-								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
+								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId}, ${req.body.recipientEmail})`;
 
 	let request = new Request(sql, function (err, rowCount) {
 		if (err) {
