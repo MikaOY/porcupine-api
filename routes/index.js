@@ -190,17 +190,26 @@ router.post('/shared', (req, res) => {
 	connection.execSql(request);
 });
 
-// GET all by user
-// URL params: userId
+// GET all by user/ board
+// URL params: userId/ boardId
 router.get('/shared', (req, res) => {
 	console.log('GET shared received');
 
-	// Generate query based on table
-	let sql = `SELECT * FROM sharing
-							INNER JOIN board ON sharing.board_id_sharing = board.board_id
-							INNER JOIN category ON board.board_id = category.board_id_category
-							INNER JOIN todo ON category.category_id = todo.category_id_todo
-							WHERE sharing.person_id_sharing = ${req.query['userId']};`
+	// Generate query based on params
+	let sql;
+	if (req.query['boardId'] != undefined) {
+		sql = `SELECT * FROM sharing
+						INNER JOIN person
+							ON sharing.person_id_sharing = person.person_id
+						WHERE sharing.board_id_sharing = ${req.query['boardId']};`
+	}
+	if (req.query['userId'] != undefined) {
+		sql = `SELECT * FROM sharing
+						INNER JOIN board ON sharing.board_id_sharing = board.board_id
+						INNER JOIN category ON board.board_id = category.board_id_category
+						INNER JOIN todo ON category.category_id = todo.category_id_todo
+						WHERE sharing.person_id_sharing = ${req.query['userId']};`
+	}
 
 	let request = new Request(sql, function (err) {
 		if (err) {
