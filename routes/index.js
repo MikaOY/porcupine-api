@@ -431,9 +431,36 @@ function generatePUTDelete(table, bit) {
 		let sql;
 		if (table) {
 			sql = `UPDATE ${table} SET ${table}_is_deleted = ${bit} 
-							WHERE person_id_${table} = ${req.body.userId} AND ${table}_id = ${req.body[table + 'Id']}`;
+							WHERE person_id_${table} = ${req.body.userId} AND ${table}_id = ${req.body[table + 'Id']};`;
 		} else {
 			sql = null; // TODO: return error
+		}
+		// delete todos with cat 
+		if (table == 'category') {
+			let newSql = `UPDATE todo SET todo_is_deleted = ${bit} 
+											WHERE category_id_todo = ${req.body[table + 'Id']};` + sql;
+			sql = newSql;
+		}
+		// delete cats under board, and board under cats
+		if (table == 'board') {
+			sql = `with prod as (
+							select * from board 
+								inner join category on board.board_id = category.board_id_category
+								inner join todo on category.category_id = todo.category_id_todo
+							where board.board_id = ${req.body[table + 'Id']})
+						update prod set board_is_deleted = ${bit};
+						with prod as (
+							select * from board 
+								inner join category on board.board_id = category.board_id_category
+								inner join todo on category.category_id = todo.category_id_todo
+							where board.board_id = ${req.body[table + 'Id']})
+						update prod set category_is_deleted = ${bit};
+						with prod as (
+							select * from board 
+								inner join category on board.board_id = category.board_id_category
+								inner join todo on category.category_id = todo.category_id_todo
+							where board.board_id = ${req.body[table + 'Id']})
+						update prod set todo_is_deleted = ${bit};`
 		}
 
 		let request = new Request(sql, function (err, rowCount) {
