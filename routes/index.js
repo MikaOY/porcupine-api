@@ -121,7 +121,7 @@ router.put('/todo/restore', generatePUTDelete('todo', '0'));
 // URL params: todoId
 router.delete('/todo', generateDELETE('todo', 'todoId'));
 
-/* SHARED */
+/* SHARING */
 
 // GET all by user
 // URL params: userId
@@ -159,6 +159,57 @@ router.get('/shared', (req, res) => {
 	connection.execSql(request);
 });
 
+// POST new sharing
+// body params: boardId, recipientId, isViewOnly, note, sharerId, ownerId
+router.post('/shared', (req, res) => {
+	console.log('POST sharing received');
+
+	let sql = `INSERT INTO sharing 
+							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
+								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
+
+	let request = new Request(sql, function (err, rowCount) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(rowCount + ' row(s) inserted');
+	}
+	);
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows affected');
+		res.send('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
+// DELETE sharing
+// body params: boardId, recipientId, userId
+router.delete('/shared', (req, res) => {
+	console.log('DELETE sharing received');
+
+	let sql = `DELETE FROM sharing 
+							WHERE board_id_sharing = ${req.body.boardId} 
+								AND person_id_sharing = ${req.body.recipientId} 
+								AND (sharer_id = ${req.body.userId} OR owner_id = ${req.body.userId});`;
+
+	let request = new Request(sql, function (err, rowCount) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(rowCount + ' row(s) inserted');
+	}
+	);
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows affected');
+		res.send('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
 function generatePOST(table) {
 	return function (req, res) {
 		console.log('POST received');
@@ -187,7 +238,6 @@ function generatePOST(table) {
                         ${req.body.isDone}, ${req.body.dateDone}, ${req.body.isArchived}, ${req.body.priorityVal}, ${req.body.dateDue}, 0);`;
 				break;
 		}
-		console.log(sql);
 
 		let request = new Request(sql, function (err, rowCount) {
 			if (err) {
