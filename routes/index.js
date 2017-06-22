@@ -236,14 +236,14 @@ router.get('/shared', (req, res) => {
 });
 
 // DELETE sharing
-// body params: boardId, recipientId, userId
+// URL params: boardId, recipientId, userId
 router.delete('/shared', (req, res) => {
 	console.log('DELETE sharing received');
 
 	let sql = `DELETE FROM sharing 
-							WHERE board_id_sharing = ${req.body.boardId} 
-								AND person_id_sharing = ${req.body.recipientId} 
-								AND (sharer_id = ${req.body.userId} OR owner_id = ${req.body.userId});`;
+							WHERE board_id_sharing = ${req.query['boardId']} 
+								AND person_id_sharing = ${req.query['recipientId']} 
+								AND (sharer_id = ${req.query['userId']} OR owner_id = ${req.query['userId']} OR is_view_only = 0);`;
 
 	let request = new Request(sql, function (err, rowCount) {
 		if (err) {
