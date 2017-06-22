@@ -123,6 +123,31 @@ router.delete('/todo', generateDELETE('todo', 'todoId'));
 
 /* SHARING */
 
+// POST new sharing
+// body params: boardId, recipientId, isViewOnly, note, sharerId, ownerId
+router.post('/shared', (req, res) => {
+	console.log('POST sharing received');
+
+	let sql = `INSERT INTO sharing 
+							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
+								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
+
+	let request = new Request(sql, function (err, rowCount) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(rowCount + ' row(s) inserted');
+	}
+	);
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows affected');
+		res.send('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
 // GET all by user
 // URL params: userId
 router.get('/shared', (req, res) => {
@@ -154,31 +179,6 @@ router.get('/shared', (req, res) => {
 	request.on('doneInProc', function (rowCount) {
 		console.log(rowCount + ' rows returned');
 		res.status(200).json(jsonArray);
-	});
-
-	connection.execSql(request);
-});
-
-// POST new sharing
-// body params: boardId, recipientId, isViewOnly, note, sharerId, ownerId
-router.post('/shared', (req, res) => {
-	console.log('POST sharing received');
-
-	let sql = `INSERT INTO sharing 
-							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
-								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
-
-	let request = new Request(sql, function (err, rowCount) {
-		if (err) {
-			console.log(err);
-		}
-		console.log(rowCount + ' row(s) inserted');
-	}
-	);
-
-	request.on('doneInProc', function (rowCount) {
-		console.log(rowCount + ' rows affected');
-		res.send('Holy macaroni. It worked!');
 	});
 
 	connection.execSql(request);
