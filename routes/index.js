@@ -158,6 +158,7 @@ router.get('/user', (req, res) => {
 	request.on('doneInProc', function (rowCount) {
 		console.log(rowCount + ' rows returned');
 		res.status(200).json(jsonArray);
+		res.end('Holy macaroni. It worked!');
 	});
 
 	connection.execSql(request);
@@ -184,7 +185,7 @@ router.post('/shared', (req, res) => {
 
 	request.on('doneInProc', function (rowCount) {
 		console.log(rowCount + ' rows affected');
-		res.send('Holy macaroni. It worked!');
+		res.end('Holy macaroni. It worked!');
 	});
 
 	connection.execSql(request);
@@ -230,6 +231,7 @@ router.get('/shared', (req, res) => {
 	request.on('doneInProc', function (rowCount) {
 		console.log(rowCount + ' rows returned');
 		res.status(200).json(jsonArray);
+		res.end('Holy macaroni. It worked!');
 	});
 
 	connection.execSql(request);
@@ -255,7 +257,7 @@ router.delete('/shared', (req, res) => {
 
 	request.on('doneInProc', function (rowCount) {
 		console.log(rowCount + ' rows affected');
-		res.send('Holy macaroni. It worked!');
+		res.end('Holy macaroni. It worked!');
 	});
 
 	connection.execSql(request);
@@ -300,7 +302,7 @@ function generatePOST(table) {
 
 		request.on('doneInProc', function (rowCount) {
 			console.log(rowCount + ' rows affected');
-			res.send('Holy macaroni. It worked!');
+			res.end('Holy macaroni. It worked!');
 		});
 
 		connection.execSql(request);
@@ -338,6 +340,7 @@ function generateGET(table, matchParam) {
 		request.on('doneInProc', function (rowCount) {
 			console.log(rowCount + ' rows returned');
 			res.status(200).json(jsonArray);
+			res.end('Holy macaroni. It worked!');
 		});
 
 		connection.execSql(request);
@@ -416,7 +419,7 @@ function generatePUT(table) {
 
 		request.on('doneInProc', function (rowCount) {
 			console.log(rowCount + ' rows affected');
-			res.send('Holy macaroni. It worked!');
+			res.end('Holy macaroni. It worked!');
 		});
 
 		connection.execSql(request);
@@ -473,7 +476,8 @@ function generatePUTDelete(table, bit) {
 
 		request.on('doneInProc', function (rowCount) {
 			console.log(rowCount + ' rows affected');
-			res.send('Holy macaroni. It worked!');
+			console.log('It worked!');
+			res.end('Holy macaroni. It worked!');
 		});
 
 		connection.execSql(request);
@@ -499,7 +503,7 @@ function generateDELETE(table, param) {
 
 		request.on('doneInProc', function (rowCount) {
 			console.log(rowCount + ' rows affected');
-			res.send('Holy macaroni. It worked!');
+			res.end('Holy macaroni. It worked!');
 		});
 
 		connection.execSql(request);
