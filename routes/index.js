@@ -34,20 +34,20 @@ const jwtAuthz = require('express-jwt-authz');
 // access token must exist and be verified against
 // the Auth0 JSON Web Key Set
 const checkJwt = jwt({
-  // Dynamically provide a signing key
-  // based on the kid in the header and 
-  // the singing keys provided by the JWKS endpoint.
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://porcupine.au.auth0.com/.well-known/jwks.json`
-  }),
+	// Dynamically provide a signing key
+	// based on the kid in the header and 
+	// the singing keys provided by the JWKS endpoint.
+	secret: jwksRsa.expressJwtSecret({
+		cache: true,
+		rateLimit: true,
+		jwksRequestsPerMinute: 5,
+		jwksUri: `https://porcupine.au.auth0.com/.well-known/jwks.json`
+	}),
 
-  // Validate the audience and the issuer.
-  audience: 'http://porcupine-dope-api.azurewebsites.net',
-  issuer: `https://porcupine.au.auth0.com/`,
-  algorithms: ['RS256']
+	// Validate the audience and the issuer.
+	audience: 'http://porcupine-dope-api.azurewebsites.net',
+	issuer: `https://porcupine.au.auth0.com/`,
+	algorithms: ['RS256']
 });
 
 // protecting endpoint example: only access token with scope 'read:messages' can access
@@ -61,7 +61,7 @@ app.get('/api/private', checkJwt, checkScopes, function(req, res) {
 });
 */
 
-router.use(checkJwt);
+//router.use(checkJwt);
 
 // ROUTES
 
@@ -229,6 +229,10 @@ router.get('/user', (req, res) => {
 
 	connection.execSql(request);
 });
+
+// PUT user 
+// body params: fname, lname, username, email, hash
+router.put('/user', generatePUT('person'));
 
 /* SHARING */
 
@@ -472,6 +476,25 @@ function generatePUT(table) {
 								${isArchived == undefined ? '' : ('is_archived = ' + isArchived)}${todoDateDue !== undefined ? ', ' : ''}
 								${todoDateDue == undefined ? '' : ('date_due = ' + todoDateDue)}
 							WHERE person_id_todo = ${userId} AND todo_id = ${todoId}`;
+				break;
+			case 'person':
+				let personId = req.body.personId;
+
+				let fName = req.body.fname;
+				let lName = req.body.lname;
+				let username = req.body.username;
+				let email = req.body.email;
+				let hash = req.body.hash;
+
+				// Generate SQL query, adjusted for different number of defined URL params
+				sql = `UPDATE ${table} 
+							VALUES (fname, lname, username, person_email, password_hash)
+							SET ${fName == undefined ? '' : ('fname = ' + fName)}${lName !== undefined ? ', ' : ''}
+								${lName == undefined ? '' : ('lname = ' + lName)}${username !== undefined ? ', ' : ''}
+								${username == undefined ? '' : ('username = ' + username)}${email !== undefined ? ', ' : ''}
+								${email == undefined ? '' : ('person_email = ' + email)}${hash !== undefined ? ', ' : ''}
+								${hash == undefined ? '' : ('password_hash = ' + hash)}
+							WHERE person_id = ${personId};`
 				break;
 		}
 
