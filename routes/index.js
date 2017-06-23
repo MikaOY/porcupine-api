@@ -33,6 +33,44 @@ router.get('/', function (req, res) {
 	res.render('index', { title: 'Porcupine' });
 });
 
+/* Restore all */
+router.put('/restore/all', function (req, res) {
+	console.log('PUT delete received');
+
+	// Generate query based on table
+	let sql = `with prod as (
+							select * from board 
+								inner join category on board.board_id = category.board_id_category
+								inner join todo on category.category_id = todo.category_id_todo
+						update prod set board_is_deleted = 0;
+						with prod as (
+							select * from board 
+								inner join category on board.board_id = category.board_id_category
+								inner join todo on category.category_id = todo.category_id_todo
+						update prod set category_is_deleted = 0;
+						with prod as (
+							select * from board 
+								inner join category on board.board_id = category.board_id_category
+								inner join todo on category.category_id = todo.category_id_todo
+						update prod set todo_is_deleted = 0;`
+
+	let request = new Request(sql, function (err, rowCount) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(rowCount + ' row(s) inserted');
+	}
+	);
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows affected');
+		console.log('It worked!');
+		res.end('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
 /* Board */
 
 // GET all by user
