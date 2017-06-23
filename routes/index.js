@@ -38,20 +38,11 @@ router.put('/restore/all', function (req, res) {
 	console.log('PUT delete received');
 
 	// Generate query based on table
-	let sql = `with prod as (
-							select * from board 
-								inner join category on board.board_id = category.board_id_category
-								inner join todo on category.category_id = todo.category_id_todo
+	let sql = `with prod as (select * from board)
 						update prod set board_is_deleted = 0;
-						with prod as (
-							select * from board 
-								inner join category on board.board_id = category.board_id_category
-								inner join todo on category.category_id = todo.category_id_todo
+						with prod as (select * from category)
 						update prod set category_is_deleted = 0;
-						with prod as (
-							select * from board 
-								inner join category on board.board_id = category.board_id_category
-								inner join todo on category.category_id = todo.category_id_todo
+						with prod as (select * from todo)
 						update prod set todo_is_deleted = 0;`
 
 	let request = new Request(sql, function (err, rowCount) {
