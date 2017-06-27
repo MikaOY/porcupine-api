@@ -198,12 +198,13 @@ router.get('/user', (req, res) => {
 	let sql;
 	if (req.query['email'] != undefined) {
 		sql = `SELECT * FROM person
-						WHERE person_email like ${req.query['email']};`
+						WHERE person_email like '${req.query['email']}';`
 	}
 	if (req.query['authOId'] != undefined) {
 		sql = `SELECT * FROM person
-						WHERE autho_id = ${req.query['authOId']};`
+						WHERE autho_id like '${req.query['authOId']}';`
 	}
+	console.log(sql);
 
 	let request = new Request(sql, function (err) {
 		if (err) {
