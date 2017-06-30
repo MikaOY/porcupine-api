@@ -61,7 +61,7 @@ app.get('/api/private', checkJwt, checkScopes, function(req, res) {
 });
 */
 
-router.use(checkJwt);
+//router.use(checkJwt);
 
 // ROUTES
 
