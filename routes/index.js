@@ -1,4 +1,3 @@
-// @ts-nocheck
 let express = require('express');
 let router = express.Router();
 
@@ -20,12 +19,12 @@ connection.on('connect', function (err) {
 	if (err) {
 		console.log(err);
 	} else {
-		// If no error, then good to proceed.  
+		// If no error, then good to proceed.
 		console.log("Connected");
 	}
 });
 
-// AuthO JWT validation 
+// AuthO JWT validation
 const jwt = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
 const jwtAuthz = require('express-jwt-authz');
@@ -35,7 +34,7 @@ const jwtAuthz = require('express-jwt-authz');
 // the Auth0 JSON Web Key Set
 const checkJwt = jwt({
 	// Dynamically provide a signing key
-	// based on the kid in the header and 
+	// based on the kid in the header and
 	// the singing keys provided by the JWKS endpoint.
 	secret: jwksRsa.expressJwtSecret({
 		cache: true,
@@ -55,8 +54,8 @@ const checkJwt = jwt({
 const checkScopes = jwtAuthz([ 'read:messages' ]);
 
 app.get('/api/private', checkJwt, checkScopes, function(req, res) {
-  res.json({ 
-    message: "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this." 
+  res.json({
+    message: "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
   });
 });
 */
@@ -125,7 +124,7 @@ router.put('/board/restore', generatePUTDelete('board', '0'));
 router.delete('/board', generateDELETE('board', 'boardId'));
 
 /* Category */
-// GET  
+// GET
 router.get('/category', generateGET('category', 'userId'));
 
 // POST new category
@@ -147,9 +146,9 @@ router.put('/category/restore', generatePUTDelete('category', '0'));
 // URL params: categoryId
 router.delete('/category', generateDELETE('category', 'categoryId'));
 
-/* Priority 
+/* Priority
 
-// GET  
+// GET
 router.get('/priority', generateGET('priority', 'userId'));
 
 // POST new priority
@@ -194,7 +193,7 @@ router.delete('/todo', generateDELETE('todo', 'todoId'));
 router.get('/user', (req, res) => {
 	console.log('GET user by email/id received');
 
-	// Generate query based on param	
+	// Generate query based on param
 	let sql;
 	if (req.query['email'] != undefined) {
 		sql = `SELECT * FROM person
@@ -231,7 +230,7 @@ router.get('/user', (req, res) => {
 	connection.execSql(request);
 });
 
-// PUT user 
+// PUT user
 // body params: fname, lname, username, email, hash
 router.put('/user', generatePUT('person'));
 
@@ -242,7 +241,7 @@ router.put('/user', generatePUT('person'));
 router.post('/shared', (req, res) => {
 	console.log('POST sharing received');
 
-	let sql = `INSERT INTO sharing 
+	let sql = `INSERT INTO sharing
 							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
 								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
 
@@ -313,9 +312,9 @@ router.get('/shared', (req, res) => {
 router.delete('/shared', (req, res) => {
 	console.log('DELETE sharing received');
 
-	let sql = `DELETE FROM sharing 
-							WHERE board_id_sharing = ${req.query['boardId']} 
-								AND person_id_sharing = ${req.query['recipientId']} 
+	let sql = `DELETE FROM sharing
+							WHERE board_id_sharing = ${req.query['boardId']}
+								AND person_id_sharing = ${req.query['recipientId']}
 								AND (sharer_id = ${req.query['userId']} OR owner_id = ${req.query['userId']} OR is_view_only = 0);`;
 
 	let request = new Request(sql, function (err, rowCount) {
@@ -342,23 +341,23 @@ function generatePOST(table) {
 		let sql;
 		switch (table) {
 			case 'board':
-				sql = `INSERT INTO board (person_id_board, board_title, board_date_created, board_is_deleted) 
+				sql = `INSERT INTO board (person_id_board, board_title, board_date_created, board_is_deleted)
                         VALUES (${req.body.userId}, ${req.body.title}, ${req.body.dateCreated}, 0);`;
 				break;
 			case 'category':
-				sql = `INSERT INTO category (person_id_category, category_title, color, category_priority, category_date_created, board_id_category, category_is_deleted) 
+				sql = `INSERT INTO category (person_id_category, category_title, color, category_priority, category_date_created, board_id_category, category_is_deleted)
                         VALUES (${req.body.userId}, ${req.body.title}, ${req.body.color},
                         ${req.body.priorityVal}, ${req.body.dateCreated}, ${req.body.boardId}, 0);`;
 				break;
 			/*
 			case 'priority':
-				sql = `INSERT INTO priority (person_id, importance, name) 
+				sql = `INSERT INTO priority (person_id, importance, name)
                         VALUES (${req.body.userId}, ${req.body.importance}, ${req.body.name});`;
 				break;
 			*/
 			case 'todo':
-				sql = `INSERT INTO todo (person_id_todo, todo_info, category_id_todo, todo_date_created, is_done, date_done, is_archived, todo_priority, date_due, todo_is_deleted) 
-                        VALUES (${req.body.userId}, ${req.body.info}, ${req.body.categoryId}, ${req.body.dateCreated}, 
+				sql = `INSERT INTO todo (person_id_todo, todo_info, category_id_todo, todo_date_created, is_done, date_done, is_archived, todo_priority, date_due, todo_is_deleted)
+                        VALUES (${req.body.userId}, ${req.body.info}, ${req.body.categoryId}, ${req.body.dateCreated},
                         ${req.body.isDone}, ${req.body.dateDone}, ${req.body.isArchived}, ${req.body.priorityVal}, ${req.body.dateDue}, 0);`;
 				break;
 		}
@@ -431,7 +430,7 @@ function generatePUT(table) {
 				let boardDateCreated = req.body.dateCreated;
 
 				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table} 
+				sql = `UPDATE ${table}
 							SET ${boardTitle == undefined ? '' : ('board_title = ' + boardTitle)}${boardDateCreated !== undefined ? ', ' : ''}
 								${boardDateCreated == undefined ? '' : ('board_date_created = ' + boardDateCreated)}
 							WHERE person_id_board = ${userId} AND board_id = ${boardId}`;
@@ -446,7 +445,7 @@ function generatePUT(table) {
 				let priorityValue = req.body.priorityVal;
 
 				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table} 
+				sql = `UPDATE ${table}
 							SET ${catTitle == undefined ? '' : ('category_title = ' + catTitle)}${catBoardId !== undefined ? ', ' : ''}
 								${catBoardId == undefined ? '' : ('board_id_category = ' + catBoardId)}${color !== undefined ? ', ' : ''}
 								${color == undefined ? '' : ('color = ' + color)}${catDateCreated !== undefined ? ', ' : ''}
@@ -467,7 +466,7 @@ function generatePUT(table) {
 				let todoDateDue = req.body.dateDue;
 
 				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table} 
+				sql = `UPDATE ${table}
 							SET ${info == undefined ? '' : ('todo_info = ' + info)}${todoCategoryId !== undefined ? ', ' : ''}
 								${todoCategoryId == undefined ? '' : ('category_id_todo = ' + todoCategoryId)}${priorityVal !== undefined ? ', ' : ''}
 								${priorityVal == undefined ? '' : ('todo_priority = ' + priorityVal)}${todoDateCreated !== undefined ? ', ' : ''}
@@ -488,7 +487,7 @@ function generatePUT(table) {
 				let hash = req.body.hash;
 
 				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table} 
+				sql = `UPDATE ${table}
 							VALUES (fname, lname, username, person_email, password_hash)
 							SET ${fName == undefined ? '' : ('fname = ' + fName)}${lName !== undefined ? ', ' : ''}
 								${lName == undefined ? '' : ('lname = ' + lName)}${username !== undefined ? ', ' : ''}
@@ -523,33 +522,33 @@ function generatePUTDelete(table, bit) {
 		// Generate query based on table
 		let sql;
 		if (table) {
-			sql = `UPDATE ${table} SET ${table}_is_deleted = ${bit} 
+			sql = `UPDATE ${table} SET ${table}_is_deleted = ${bit}
 							WHERE person_id_${table} = ${req.body.userId} AND ${table}_id = ${req.body[table + 'Id']};`;
 		} else {
 			sql = null; // TODO: return error
 		}
-		// delete todos with cat 
+		// delete todos with cat
 		if (table == 'category') {
-			let newSql = `UPDATE todo SET todo_is_deleted = ${bit} 
+			let newSql = `UPDATE todo SET todo_is_deleted = ${bit}
 											WHERE category_id_todo = ${req.body[table + 'Id']};` + sql;
 			sql = newSql;
 		}
 		// delete cats under board, and board under cats
 		if (table == 'board') {
 			sql = `with prod as (
-							select * from board 
+							select * from board
 								inner join category on board.board_id = category.board_id_category
 								inner join todo on category.category_id = todo.category_id_todo
 							where board.board_id = ${req.body[table + 'Id']})
 						update prod set board_is_deleted = ${bit};
 						with prod as (
-							select * from board 
+							select * from board
 								inner join category on board.board_id = category.board_id_category
 								inner join todo on category.category_id = todo.category_id_todo
 							where board.board_id = ${req.body[table + 'Id']})
 						update prod set category_is_deleted = ${bit};
 						with prod as (
-							select * from board 
+							select * from board
 								inner join category on board.board_id = category.board_id_category
 								inner join todo on category.category_id = todo.category_id_todo
 							where board.board_id = ${req.body[table + 'Id']})

@@ -1,6 +1,3 @@
 {
-  "editor.tabSize": 2,
-  "files.autoSave": "afterDelay",
-  "editor.detectIndentation": false,
-  "editor.insertSpaces": false
+  "files.autoSave": "afterDelay"
 }
