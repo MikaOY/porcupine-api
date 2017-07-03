@@ -1,3 +1,4 @@
+// @ts-nocheck
 let express = require('express');
 let router = express.Router();
 
@@ -60,7 +61,7 @@ app.get('/api/private', checkJwt, checkScopes, function(req, res) {
 });
 */
 
-//router.use(checkJwt);
+router.use(checkJwt);
 
 // ROUTES
 

@@ -27,7 +27,7 @@
 		"url": "https://github.com/MikaOY/porcupine-api"
 	},
 	"scripts": {
-		"start": "babel-node --presets es2015 app.js"
+		"start": "babel-node --presets es2015 bin/www"
 	},
 	"dependencies": {
 		"body-parser": "~1.17.1",
