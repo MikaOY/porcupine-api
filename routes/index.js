@@ -397,4 +397,5 @@ function generateDELETE(table, param) {
 }
 
 module.exports = router;
+module.exports.generatePOST = generatePOST;
 module.exports.generatePUT = generatePUT;

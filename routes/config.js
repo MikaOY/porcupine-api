@@ -1,7 +1,5 @@
 // @ts-nocheck
 
-import{ express } from '../app';
-
 var Connection = require('tedious').Connection;
 // Create connection to database
 let config = {
@@ -58,6 +56,7 @@ app.get('/api/private', checkJwt, checkScopes, function(req, res) {
 });
 */
 
+let express = require('express');
 export let router = express.Router();
 //router.use(checkJwt);
 

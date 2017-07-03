@@ -1,6 +1,9 @@
 //@ts-nocheck
-describe('First test', function() {
-	it('should be true', function() {
-		expect(true).toBeTruthy();
+
+import { generatePOST } from'./index';
+
+describe('Query checks', function() {
+	it('should POST correctly', function() {
+		expect(generatePOST('board')()).toBeTruthy();
 	})
 })
