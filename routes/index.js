@@ -1,6 +1,67 @@
 // @ts-nocheck
+let express = require('express');
+let router = express.Router();
 
-import { connection, router, Request } from './config';
+var Connection = require('tedious').Connection;
+var Request = require('tedious').Request;
+
+// Create connection to database
+let config = {
+	userName: 'MikaY',
+	password: 'ILoveCodingPorcupine2017',
+	server: 'testing-mika.database.windows.net',
+	options: {
+		database: 'porcupine-db',
+		encrypt: true,
+	}
+}
+let connection = new Connection(config);
+connection.on('connect', function (err) {
+	if (err) {
+		console.log(err);
+	} else {
+		// If no error, then good to proceed.
+		console.log("Connected");
+	}
+});
+
+// AuthO JWT validation
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
+const jwtAuthz = require('express-jwt-authz');
+
+// Authentication middleware. When used, the
+// access token must exist and be verified against
+// the Auth0 JSON Web Key Set
+const checkJwt = jwt({
+	// Dynamically provide a signing key
+	// based on the kid in the header and
+	// the singing keys provided by the JWKS endpoint.
+	secret: jwksRsa.expressJwtSecret({
+		cache: true,
+		rateLimit: true,
+		jwksRequestsPerMinute: 5,
+		jwksUri: `https://porcupine.au.auth0.com/.well-known/jwks.json`
+	}),
+
+	// Validate the audience and the issuer.
+	audience: 'http://porcupine-dope-api.azurewebsites.net',
+	issuer: `https://porcupine.au.auth0.com/`,
+	algorithms: ['RS256']
+});
+
+// protecting endpoint example: only access token with scope 'read:messages' can access
+/*
+const checkScopes = jwtAuthz([ 'read:messages' ]);
+
+app.get('/api/private', checkJwt, checkScopes, function(req, res) {
+  res.json({
+    message: "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
+  });
+});
+*/
+
+router.use(checkJwt);
 
 // ROUTES
 
@@ -126,6 +187,153 @@ router.put('/todo/restore', generatePUTDelete('todo', '0'));
 // URL params: todoId
 router.delete('/todo', generateDELETE('todo', 'todoId'));
 
+/* USER */
+
+// GET user by email/ authOId
+// URL params: email/ authOId
+router.get('/user', (req, res) => {
+	console.log('GET user by email/id received');
+
+	// Generate query based on param
+	let sql;
+	if (req.query['email'] != undefined) {
+		sql = `SELECT * FROM person
+						WHERE person_email like '${req.query['email']}';`
+	}
+	if (req.query['authOId'] != undefined) {
+		sql = `SELECT * FROM person
+						WHERE autho_id like '${req.query['authOId']}';`
+	}
+	console.log(sql);
+
+	let request = new Request(sql, function (err) {
+		if (err) {
+			console.log(err);
+		}
+	});
+
+	// Build array of json objects to return
+	let jsonArray = [];
+	request.on('row', function (columns) {
+		let rowObject = {};
+		columns.forEach(function (column) {
+			rowObject[column.metadata.colName] = column.value;
+		});
+		jsonArray.push(rowObject)
+	});
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows returned');
+		res.status(200).json(jsonArray);
+		res.end('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
+// PUT user
+// body params: fname, lname, username, email, hash
+router.put('/user', generatePUT('person'));
+
+/* SHARING */
+
+// POST new sharing
+// body params: boardId, recipientId, isViewOnly, note, sharerId, ownerId, recipientEmail
+router.post('/shared', (req, res) => {
+	console.log('POST sharing received');
+
+	let sql = `INSERT INTO sharing
+							VALUES (${req.body.boardId}, ${req.body.recipientId}, ${req.body.isViewOnly},
+								${req.body.note}, ${req.body.sharerId}, ${req.body.ownerId})`;
+
+	let request = new Request(sql, function (err, rowCount) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(rowCount + ' row(s) inserted');
+	}
+	);
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows affected');
+		res.end('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
+// GET all by user/ board
+// URL params: userId/ boardId
+router.get('/shared', (req, res) => {
+	console.log('GET shared received');
+
+	// Generate query based on params
+	let sql;
+	if (req.query['boardId'] != undefined) {
+		sql = `SELECT * FROM sharing
+						INNER JOIN person
+							ON sharing.person_id_sharing = person.person_id
+						WHERE sharing.board_id_sharing = ${req.query['boardId']};`
+	}
+	if (req.query['userId'] != undefined) {
+		sql = `SELECT * FROM sharing
+						INNER JOIN board ON sharing.board_id_sharing = board.board_id
+						INNER JOIN category ON board.board_id = category.board_id_category
+						INNER JOIN todo ON category.category_id = todo.category_id_todo
+						WHERE sharing.person_id_sharing = ${req.query['userId']};`
+	}
+
+	let request = new Request(sql, function (err) {
+		if (err) {
+			console.log(err);
+		}
+	});
+
+	// Build array of json objects to return
+	let jsonArray = [];
+	request.on('row', function (columns) {
+		let rowObject = {};
+		columns.forEach(function (column) {
+			rowObject[column.metadata.colName] = column.value;
+		});
+		jsonArray.push(rowObject)
+	});
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows returned');
+		res.status(200).json(jsonArray);
+		res.end('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
+// DELETE sharing
+// URL params: boardId, recipientId, userId
+router.delete('/shared', (req, res) => {
+	console.log('DELETE sharing received');
+
+	let sql = `DELETE FROM sharing
+							WHERE board_id_sharing = ${req.query['boardId']}
+								AND person_id_sharing = ${req.query['recipientId']}
+								AND (sharer_id = ${req.query['userId']} OR owner_id = ${req.query['userId']} OR is_view_only = 0);`;
+
+	let request = new Request(sql, function (err, rowCount) {
+		if (err) {
+			console.log(err);
+		}
+		console.log(rowCount + ' row(s) inserted');
+	}
+	);
+
+	request.on('doneInProc', function (rowCount) {
+		console.log(rowCount + ' rows affected');
+		res.end('Holy macaroni. It worked!');
+	});
+
+	connection.execSql(request);
+});
+
 function generatePOST(table) {
 	return function (req, res) {
 		console.log('POST received');
@@ -216,7 +424,7 @@ function generatePUT(table) {
 		let sql;
 
 		switch (table) {
-			case 'board': {
+			case 'board':
 				let boardId = req.body.boardId;
 
 				let boardTitle = req.body.title;
@@ -228,8 +436,7 @@ function generatePUT(table) {
 								${boardDateCreated == undefined ? '' : ('board_date_created = ' + boardDateCreated)}
 							WHERE person_id_board = ${userId} AND board_id = ${boardId}`;
 				break;
-			}
-			case 'category': {
+			case 'category':
 				let categoryId = req.body.categoryId;
 
 				let catTitle = req.body.title;
@@ -247,8 +454,7 @@ function generatePUT(table) {
 								${priorityValue == undefined ? '' : ('category_priority = ' + priorityValue)}
 							WHERE person_id_category = ${userId} AND category_id = ${categoryId}`;
 				break;
-			}
-			case 'todo': {
+			case 'todo':
 				let todoId = req.body.todoId;
 
 				let info = req.body.info;
@@ -272,8 +478,7 @@ function generatePUT(table) {
 								${todoDateDue == undefined ? '' : ('date_due = ' + todoDateDue)}
 							WHERE person_id_todo = ${userId} AND todo_id = ${todoId}`;
 				break;
-			}
-			case 'person': {
+			case 'person':
 				let personId = req.body.personId;
 
 				let fName = req.body.fname;
@@ -292,7 +497,6 @@ function generatePUT(table) {
 								${hash == undefined ? '' : ('password_hash = ' + hash)}
 							WHERE person_id = ${personId};`
 				break;
-			}
 		}
 
 		let request = new Request(sql, function (err, rowCount) {

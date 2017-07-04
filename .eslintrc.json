@@ -6,17 +6,14 @@
 		"jasmine": true
 	},
 	"plugins": [
-		"jasmine",
-		"node"
+		"jasmine"
 	],
-	"extends": ["eslint:recommended", "plugin:node/recommended"],
 	"parserOptions": {
 		"ecmaFeatures": {
-			"jsx": true,
-			"experimentalObjectRestSpread": true
+			"jsx": true
 		},
-		"ecmaVersion": 6,
-		"sourceType": "module"
+		"ecmaVersion": 5,
+		"sourceType": "script"
 	},
 	"rules": {
 		"no-const-assign": "warn",
@@ -25,9 +22,6 @@
 		"no-unreachable": "warn",
 		"no-unused-vars": "warn",
 		"constructor-super": "warn",
-		"valid-typeof": "warn",
-		"no-console":0,
-		"node/no-unsupported-features": 0, // using Babel
-		"node/no-unpublished-require": 0
+		"valid-typeof": "warn"
 	}
 }
