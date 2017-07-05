@@ -1,7 +1,10 @@
 // @ts-nocheck
 
-import { connection, router, Request } from './config';
-import { generatePUT } from'./index';
+var express = require('express');
+var router = express.Router();
+let connection = require('./config');
+let Request = require('tedious').Request;
+let generatePUT = require('./index');
 
 /* USER */
 

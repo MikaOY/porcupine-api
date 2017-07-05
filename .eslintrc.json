@@ -25,7 +25,7 @@
 		"constructor-super": "warn",
 		"valid-typeof": "warn",
 		"no-console":0,
-		"node/no-unsupported-features": 0, // using Babel
+		"node/no-unsupported-features": 0,
 		"node/no-unpublished-require": 0
 	}
 }

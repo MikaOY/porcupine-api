@@ -1,6 +1,9 @@
 // @ts-nocheck
 
-import { connection, router, Request } from './config';
+var express = require('express');
+var router = express.Router();
+let connection = require('./config');
+let Request = require('tedious').Request;
 
 // ROUTES
 
@@ -397,4 +400,4 @@ function generateDELETE(table, param) {
 }
 
 module.exports = router;
-module.exports.generatePUT = generatePUT;
+module.exports = generatePUT;
