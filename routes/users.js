@@ -2,9 +2,8 @@
 
 var express = require('express');
 var router = express.Router();
-let connection = require('./config');
 let Request = require('tedious').Request;
-let generatePUT = require('./index');
+let _config = require('./config');
 
 /* USER */
 
@@ -47,12 +46,12 @@ router.get('/user', (req, res) => {
 		res.end('Holy macaroni. It worked!');
 	});
 
-	connection.execSql(request);
+	_config.connection.execSql(request);
 });
 
 // PUT user
 // body params: fname, lname, username, email, hash
-router.put('/user', generatePUT('person'));
+router.put('/user', _config.generatePUT('person'));
 
 /* SHARING */
 
@@ -78,7 +77,7 @@ router.post('/shared', (req, res) => {
 		res.end('Holy macaroni. It worked!');
 	});
 
-	connection.execSql(request);
+	_config.connection.execSql(request);
 });
 
 // GET all by user/ board
@@ -124,7 +123,7 @@ router.get('/shared', (req, res) => {
 		res.end('Holy macaroni. It worked!');
 	});
 
-	connection.execSql(request);
+	_config.connection.execSql(request);
 });
 
 // DELETE sharing
@@ -150,7 +149,7 @@ router.delete('/shared', (req, res) => {
 		res.end('Holy macaroni. It worked!');
 	});
 
-	connection.execSql(request);
+	_config.connection.execSql(request);
 });
 
 module.exports = router;

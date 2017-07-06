@@ -2,8 +2,8 @@
 
 var express = require('express');
 var router = express.Router();
-let connection = require('./config');
 let Request = require('tedious').Request;
+let _config = require('./config');
 
 // ROUTES
 
@@ -38,7 +38,7 @@ router.put('/restore/all', function (req, res) {
 		res.end('Holy macaroni. It worked!');
 	});
 
-	connection.execSql(request);
+	_config.connection.execSql(request);
 });
 
 /* Board */
@@ -54,7 +54,7 @@ router.post('/board', generatePOST('board'));
 // PUT board
 // body: userId, boardId, board_title, dateCreated
 // MUST send board_title, userId, boardId
-router.put('/board', generatePUT('board'));
+router.put('/board', _config.generatePUT('board'));
 
 // PUT (delete) board
 // body MUST: boardId, userId
@@ -77,7 +77,7 @@ router.post('/category', generatePOST('category'));
 // PUT cat
 // body: userId, categoryId, info, categoryId, priorityVal, isDone (0/1), dateDone, isArchived (0/1)
 // MUST send category_title, userId, categoryId
-router.put('/category', generatePUT('category'));
+router.put('/category', _config.generatePUT('category'));
 
 // PUT (delete) category
 // body MUST: categoryId, userId
@@ -117,7 +117,7 @@ router.post('/todo', generatePOST('todo'));
 // PUT todo
 // body: userId, todoId, info, categoryId, isDone (0/1), dateDone, isArchived (0/1), priorityVal, dateDue
 // MUST send info, userId, todoId
-router.put('/todo', generatePUT('todo'));
+router.put('/todo', _config.generatePUT('todo'));
 
 // PUT (delete) todo
 // body MUST: todoId, userId
@@ -171,7 +171,7 @@ function generatePOST(table) {
 			res.end('Holy macaroni. It worked!');
 		});
 
-		connection.execSql(request);
+		_config.connection.execSql(request);
 	};
 }
 
@@ -209,110 +209,8 @@ function generateGET(table, matchParam) {
 			res.end('Holy macaroni. It worked!');
 		});
 
-		connection.execSql(request);
+		_config.connection.execSql(request);
 	};
-}
-
-function generatePUT(table) {
-	return function (req, res) {
-		let userId = req.body.userId;
-		let sql;
-
-		switch (table) {
-			case 'board': {
-				let boardId = req.body.boardId;
-
-				let boardTitle = req.body.title;
-				let boardDateCreated = req.body.dateCreated;
-
-				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table}
-							SET ${boardTitle == undefined ? '' : ('board_title = ' + boardTitle)}${boardDateCreated !== undefined ? ', ' : ''}
-								${boardDateCreated == undefined ? '' : ('board_date_created = ' + boardDateCreated)}
-							WHERE person_id_board = ${userId} AND board_id = ${boardId}`;
-				break;
-			}
-			case 'category': {
-				let categoryId = req.body.categoryId;
-
-				let catTitle = req.body.title;
-				let catBoardId = req.body.boardId;
-				let color = req.body.color;
-				let catDateCreated = req.body.dateCreated;
-				let priorityValue = req.body.priorityVal;
-
-				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table}
-							SET ${catTitle == undefined ? '' : ('category_title = ' + catTitle)}${catBoardId !== undefined ? ', ' : ''}
-								${catBoardId == undefined ? '' : ('board_id_category = ' + catBoardId)}${color !== undefined ? ', ' : ''}
-								${color == undefined ? '' : ('color = ' + color)}${catDateCreated !== undefined ? ', ' : ''}
-								${catDateCreated == undefined ? '' : ('category_date_created = ' + catDateCreated)}${priorityValue !== undefined ? ', ' : ''}
-								${priorityValue == undefined ? '' : ('category_priority = ' + priorityValue)}
-							WHERE person_id_category = ${userId} AND category_id = ${categoryId}`;
-				break;
-			}
-			case 'todo': {
-				let todoId = req.body.todoId;
-
-				let info = req.body.info;
-				let todoCategoryId = req.body.categoryId;
-				let priorityVal = req.body.priorityVal;
-				let todoDateCreated = req.body.dateCreated;
-				let isDone = req.body.isDone;
-				let dateDone = req.body.dateDone;
-				let isArchived = req.body.isArchived;
-				let todoDateDue = req.body.dateDue;
-
-				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table}
-							SET ${info == undefined ? '' : ('todo_info = ' + info)}${todoCategoryId !== undefined ? ', ' : ''}
-								${todoCategoryId == undefined ? '' : ('category_id_todo = ' + todoCategoryId)}${priorityVal !== undefined ? ', ' : ''}
-								${priorityVal == undefined ? '' : ('todo_priority = ' + priorityVal)}${todoDateCreated !== undefined ? ', ' : ''}
-								${todoDateCreated == undefined ? '' : ('todo_date_created = ' + todoDateCreated)}${isDone !== undefined ? ', ' : ''}
-								${isDone == undefined ? '' : ('is_done = ' + isDone)}${dateDone !== undefined ? ', ' : ''}
-								${dateDone == undefined ? '' : ('date_done = ' + dateDone)}${isArchived !== undefined ? ', ' : ''}
-								${isArchived == undefined ? '' : ('is_archived = ' + isArchived)}${todoDateDue !== undefined ? ', ' : ''}
-								${todoDateDue == undefined ? '' : ('date_due = ' + todoDateDue)}
-							WHERE person_id_todo = ${userId} AND todo_id = ${todoId}`;
-				break;
-			}
-			case 'person': {
-				let personId = req.body.personId;
-
-				let fName = req.body.fname;
-				let lName = req.body.lname;
-				let username = req.body.username;
-				let email = req.body.email;
-				let hash = req.body.hash;
-
-				// Generate SQL query, adjusted for different number of defined URL params
-				sql = `UPDATE ${table}
-							VALUES (fname, lname, username, person_email, password_hash)
-							SET ${fName == undefined ? '' : ('fname = ' + fName)}${lName !== undefined ? ', ' : ''}
-								${lName == undefined ? '' : ('lname = ' + lName)}${username !== undefined ? ', ' : ''}
-								${username == undefined ? '' : ('username = ' + username)}${email !== undefined ? ', ' : ''}
-								${email == undefined ? '' : ('person_email = ' + email)}${hash !== undefined ? ', ' : ''}
-								${hash == undefined ? '' : ('password_hash = ' + hash)}
-							WHERE person_id = ${personId};`
-				break;
-			}
-		}
-
-		let request = new Request(sql, function (err, rowCount) {
-			if (err) {
-				console.log(err);
-			}
-			console.log(rowCount + ' row(s) inserted');
-		}
-		);
-
-		request.on('doneInProc', function (rowCount) {
-			console.log(rowCount + ' rows affected');
-			res.end('Holy macaroni. It worked!');
-		});
-
-		connection.execSql(request);
-	}
 }
 
 function generatePUTDelete(table, bit) {
@@ -369,7 +267,7 @@ function generatePUTDelete(table, bit) {
 			res.end('Holy macaroni. It worked!');
 		});
 
-		connection.execSql(request);
+		_config.connection.execSql(request);
 	};
 }
 
@@ -395,9 +293,8 @@ function generateDELETE(table, param) {
 			res.end('Holy macaroni. It worked!');
 		});
 
-		connection.execSql(request);
+		_config.connection.execSql(request);
 	};
 }
 
 module.exports = router;
-module.exports = generatePUT;
