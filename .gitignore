@@ -25,4 +25,4 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
-./routes/config.js
+routes/config.js
